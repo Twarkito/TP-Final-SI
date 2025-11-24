@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  # Service Base de Données
+  db:
+    # Utilisation de l'image officielle MySQL version 5.7 (stable pour WP)
+    image: mysql:5.7
+    # Création d'un volume nommé pour ne pas perdre les données si on coupe le conteneur
+    volumes:
+      - db_data:/var/lib/mysql
+    # Politique de redémarrage : relance le conteneur automatiquement s'il plante
+    restart: always
+    # Variables d'environnement pour configurer le mot de passe et la BDD
+    environment:
+      MYSQL_ROOT_PASSWORD: somewordpress
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+
+  # Service Wordpress
+  wordpress:
+    # Utilisation de l'image officielle Wordpress
+    image: wordpress:latest
+    # Exposition des ports : Port 8000 de la VM redirige vers le 80 du conteneur
+    ports:
+      - "8000:80"
+    restart: always
+    # Configuration pour que Wordpress sache où est la base de données
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+    # Ce volume permet de sauvegarder les fichiers du site (thèmes, plugins, uploads)
+    volumes:
+      - wp_data:/var/www/html
+
+# Définition des volumes globaux utilisés ci-dessus
+volumes:
+  db_data:
+  wp_data:
